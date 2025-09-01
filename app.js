@@ -1,13 +1,15 @@
 require("dotenv").config();
-
 const express = require("express");
+const dotenv = require("dotenv");
+const morgan = require("morgan");
+const cors = require("cors");
+const connectDB = require("./config/db"); 
+
+const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/usersRoutes");
 const postRoutes = require("./routes/postsRoutes");
-const authRoutes = require("./routes/authRoutes");
 
 const AppError = require("./utils/AppError");
-const cors = require("cors");
-const morgan = require("morgan");
 const app = express();
 const path = require("path");
 const mongoose = require("mongoose");
@@ -22,12 +24,19 @@ app.use(cors());
 app.use(morgan("dev"));
 app.use(limiter)
 
-app.use("/users", userRoutes);
-app.use("/posts", postRoutes);
-app.use("/auth", authRoutes);
-app.use("/",(req,res)=>{
-  res.send("server running")
-})
+// Connect to Mongo
+connectDB();
+
+// API Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/posts", postRoutes);
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: "Something went wrong!" });
+});
 
 app.use((err, req, res, next) => {
   console.log(err);
@@ -77,8 +86,6 @@ mongoose
     console.log("connected to mongodb");
   })
   .catch((error) => console.log("filed connect to mongodb", error));
-// app.listen(process.env.PORT || 3000, () => {
-//   console.log(`Example app listening on port ${process.env.PORT || 3000}`);
-// });
 
-module.exports=app
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
