@@ -1,0 +1,9 @@
+[
+  {
+    "id": 1,
+    "title": "First Post",
+    "content": "This is my first post",
+    "authorId": 1,
+    "createdAt": "2025-08-28T15:31:12.341Z"
+  }
+]
